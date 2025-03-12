@@ -1,15 +1,22 @@
-# 📄 Conversor de Extrato Novadax para Koinly
+### 📄 **Conversor de Extrato Novadax para Koinly**  
 
-Este script converte extratos da corretora Novadax no formato CSV para um formato compatível com o Koinly, facilitando o rastreamento de transações para fins contábeis e fiscais.
+Este script converte extratos da corretora **Novadax** (no formato CSV) para um arquivo **CSV** no padrão **Koinly**, facilitando a importação e análise das transações de compra, venda, taxas e saques.
 
 ---
 
-## 🚀 Como Usar
+## 🚀 **Como Usar**  
 
 ### **1. Instale as dependências**  
-Certifique-se de que o Python esteja instalado e, em seguida, instale as bibliotecas necessárias com o comando:  
+- Certifique-se de ter o **Python 3** instalado em seu sistema.  
+- O script utiliza apenas bibliotecas da **biblioteca padrão do Python** (como `csv`, `re`, `datetime`, `unicodedata`), então **nenhuma instalação adicional** via `pip` é necessária.
+
+Se quiser verificar se o Python 3 está instalado, use:
 ```bash
-pip install pandas
+python --version
+```
+ou 
+```bash
+python3 --version
 ```
 
 ---
@@ -17,13 +24,14 @@ pip install pandas
 ### **2. Estrutura de Arquivos**  
 📁 Projeto/  
 ├── 📄 `converter_novadax_koinly.py` *(Script de conversão)*  
-├── 📄 `novadax_extrato.csv` *(Arquivo CSV original da Novadax)*  
-└── 📄 `koinly_extrato.csv` *(Arquivo CSV gerado para o Koinly)*  
+├── 📄 `novadax.csv` *(Arquivo CSV original da Novadax)*  
+└── 📄 `novadax_koinly_custom.csv` *(Arquivo CSV gerado para o Koinly)*  
 
 ---
 
 ### **3. Código do Script**  
-Salve o código abaixo em um arquivo chamado `converter_novadax_koinly.py`:  
+Salve o código abaixo em um arquivo chamado `converter_novadax_koinly.py`:
+
 ```python
 import csv
 from datetime import datetime
@@ -191,42 +199,68 @@ def convert_novadax_to_koinly(input_file, output_file):
             writer.writerow(koinly_row)
 
 if __name__ == "__main__":
-    input_file = "novadax_extrato.csv.csv"
-    output_file = "koinly_extrato.csv"
+    input_file = "novadax.csv"
+    output_file = "novadax_koinly_custom.csv"
     convert_novadax_to_koinly(input_file, output_file)
     print(f"Arquivo convertido salvo em: {output_file}")
-
 ```
 
 ---
 
 ### **4. Como Executar**  
-No terminal ou prompt de comando, vá até a pasta onde o script está salvo e execute:  
+
+No terminal ou prompt de comando, vá até a pasta onde o script está salvo e execute:
+
 ```bash
 python converter_novadax_koinly.py
 ```
 
+Por padrão, ele vai ler o arquivo chamado **`novadax.csv`** e gerar outro chamado **`novadax_koinly_custom.csv`**.
+
 ---
 
 ### **5. Resultado**  
-- O arquivo CSV será gerado no mesmo diretório do script.  
-- O arquivo CSV conterá as transações no formato exigido pelo Koinly.  
+
+- O arquivo CSV resultante (ex: `novadax_koinly_custom.csv`) terá as **12 colunas** exigidas pelo Koinly:  
+  1. `Date`  
+  2. `Sent Amount`  
+  3. `Sent Currency`  
+  4. `Received Amount`  
+  5. `Received Currency`  
+  6. `Fee Amount`  
+  7. `Fee Currency`  
+  8. `Net Worth Amount`  
+  9. `Net Worth Currency`  
+  10. `Label`  
+  11. `Description`  
+  12. `TxHash`  
+
+- Cada linha corresponderá a **uma linha** do CSV original da Novadax.  
+- O campo `Date` será convertido para o formato **`YYYY-MM-DD HH:MM UTC`**.  
+- Os valores numéricos serão extraídos automaticamente (excluindo texto como `R$` ou `≈R$...`).  
+- A coluna **`Label`** será preenchida com `reward` se for um `Redeemed Bonus` e vazia nos outros casos, exceto quando for detectada `taxa` ou `depósito em reais`.
 
 ---
 
-### 🛠️ Personalização  
-- Para alterar o nome do arquivo de entrada, modifique `input_file`.  
-- Para definir um nome diferente para o arquivo gerado, ajuste `output_file`.  
-- O script pode ser ajustado para incluir mais tipos de transação conforme necessário.  
+### 🛠️ **Personalização**  
+
+- Para alterar o **arquivo de entrada**, mude a variável `input_file` no final do script (ex: `"novadax_2024.csv"`).  
+- Para definir o **nome do arquivo de saída**, ajuste `output_file` (ex: `"koinly_pronto.csv"`).  
+- Caso surja algum novo tipo de transação da Novadax, ajuste a função `process_novadax_row` para mapear corretamente.
 
 ---
 
 💡 **Dica:**  
-- Certifique-se de que o arquivo CSV da Novadax está no formato correto antes de rodar o script.  
-- Se houver novas categorias de transações, ajuste a lógica dentro do loop `for`.  
+- Confirme se o **CSV original** da Novadax possui ao menos 5 colunas na ordem:  
+  1. DataHora  
+  2. Tipo  
+  3. Moeda  
+  4. Valor  
+  5. Status  
+- Se o script encontrar menos de 5 colunas em uma linha, ele marca como **Invalid Row**.  
+- Se desejar preencher o `TxHash` ou `Net Worth Amount`, você pode editar o script para adequar às suas necessidades.
 
 ---
 
 📌 **Licença**  
 Este script é de uso livre. Personalize e adapte conforme suas necessidades! 😎
-```
